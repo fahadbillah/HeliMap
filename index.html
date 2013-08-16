@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>HELISTORM</title>
+<link type="text/css" href="css/ui-lightness/jquery-ui-1.10.3.custom.min.css" />
+<script src="js/jquery-1.9.1.min.js" type="text/javascript"></script>
+<script src="js/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="container">
+<canvas id="myCanvas" width="480" height="320"> this is my canvas</canvas>
+</div>
+<script type="text/javascript">
+var c=$("#myCanvas")[0]; 
+var ctx=c.getContext("2d");
+var keyDown = {}
+var lastKeyPressed = null 
+var lastKeyPressedUp = null
+var time = Date.now();
+var pagex = 480
+var helix = 50
+var heliy = 50
+var dragFlag = false
+var backGround=new Image()
+backGround.src="PlayView/Background/Game_0.png";
+var time = Date.now()
+
+var landSwitch = {
+		id : 0,
+		bool : true
+	}
+var land = 0
+var lands = []
+lands.push(new Image())
+lands[0].src = "PlayView/Background/back1.png";
+lands.push(new Image())
+lands[1].src = "PlayView/Background/back2.png";
+
+var heliFrame = 0
+var heliFrames = [];
+heliFrames.push(new Image())
+heliFrames[0].src = "PlayView/Apache/apache1.png";
+heliFrames.push(new Image())
+heliFrames[1].src = "PlayView/Apache/apache2.png";
+
+backGround.onload = function(){
+	setInterval(render, 10);
+}
+function stopRender(e){
+	  console.log('stops '+e)
+}
+function renderClear(){
+    ctx.clearRect(0, 0, ctx.width, ctx.height);
+}
+function getKeyStrokes(t){
+	if(38 in keyDown && heliy>0)
+		heliy-= 200*t
+	else if(40 in keyDown && heliy<250)
+		heliy+= 200*t
+	else if(37 in keyDown && helix>0)
+		helix-= 200*t
+	else if(39 in keyDown && helix<350)
+		helix+= 200*t 
+}
+$(window).keydown(function(e){
+	keyDown[e.keyCode] = true
+});
+$(window).keyup(function(e){
+	delete keyDown[e.keyCode]
+});
+function render() {
+	getKeyStrokes((Date.now() - time) / 1000);
+    time = Date.now();
+	ctx.clearRect(0,0,480,320)
+	backgroundDraw(pagex)
+	backgroundDraw(pagex-480)
+	landDraw(pagex,250)
+	landDraw(pagex-480,250)
+	infiniteLoop()
+	heliDraw(helix,heliy)	
+}
+function infiniteLoop(){
+	if(pagex==0)
+		pagex = 480
+	pagex--
+	landSwitch.id++
+}
+function heliDraw(x,y){	
+	ctx.drawImage(heliFrames[heliFrame],x,y);
+	heliFrame = (heliFrame+1) % heliFrames.length
+}
+function backgroundDraw(x){	
+	ctx.drawImage(backGround,x,0);
+}
+function landDraw(x,y){	
+	if(landSwitch.id%1000==0 && landSwitch.bool){
+		switch(landSwitch.bool){
+			case true:
+				landSwitch.bool = false
+				break
+			case false:
+				landSwitch.bool = true	
+				break
+		}
+		land = (land+1) % lands.length
+		console.log('back switches '+land)
+	}
+	ctx.drawImage(lands[land],x,y);
+	if(landSwitch.id%1100==0)
+		landSwitch.bool = true
+}
+</script>
+</body>
+</html>
